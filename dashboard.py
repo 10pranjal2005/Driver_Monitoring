@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-LOG_FILE = "fatigue_log.csv"
+LOG_FILE = os.path.join(os.path.dirname(__file__), "fatigue_log.csv")
 
 
 @app.route("/")
