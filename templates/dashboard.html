@@ -1,87 +1,180 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Driver Monitoring Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-
-body{
-font-family:Arial;
-margin:0;
-background:#f4f6f8;
+:root {
+  --bg-color: #0b0f19;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --accent-primary: #6366f1;
+  --safe: #10b981;
+  --warn: #f59e0b;
+  --critical: #ef4444;
 }
 
-.header{
-background:#111827;
-color:white;
-padding:20px;
-text-align:center;
-font-size:22px;
+* {
+  box-sizing: border-box;
 }
 
-.container{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-padding:20px;
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  margin: 0;
+  background-color: var(--bg-color);
+  background-image: radial-gradient(circle at 50% 0%, #1e1e38 0%, var(--bg-color) 70%);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
-.card{
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0px 3px 8px rgba(0,0,0,0.1);
+/* HEADER */
+.header {
+  background: rgba(11, 15, 25, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--card-border);
+  color: white;
+  padding: 16px 20px;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-.status{
-font-size:22px;
-font-weight:bold;
-margin-top:10px;
+/* CONTAINER */
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.metric{
-font-size:18px;
-margin-top:6px;
+@media(min-width: 1024px) {
+  .container {
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .col-6 { grid-column: span 6; }
+  .col-4 { grid-column: span 4; }
+  .col-8 { grid-column: span 8; }
 }
 
-.timeline{
-max-height:320px;
-overflow-y:auto;
-font-size:14px;
-line-height:1.6;
+/* CARDS */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border-color 0.2s ease;
 }
 
-@media(max-width:768px){
-
-.container{
-grid-template-columns:1fr;
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-.status{
-font-size:20px;
+h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0 0 12px 0;
 }
 
-.header{
-font-size:20px;
-padding:15px;
+/* TYPOGRAPHY & METRICS */
+.status {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 4px 0 16px 0;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
 }
 
+.status:last-child {
+  margin-bottom: 0;
 }
 
-canvas{
-max-width:100%;
-height:250px;
+.metric {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  color: var(--text-main);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.safe{color:green;}
-.warn{color:orange;}
-.critical{color:red;}
+/* BADGES & STATUS COLORS */
+.safe { color: var(--safe); text-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+.warn { color: var(--warn); text-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+.critical { color: var(--critical); text-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+
+/* EVENT TIMELINE */
+.timeline {
+  max-height: 250px;
+  overflow-y: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.timeline b {
+  color: var(--accent-primary);
+  font-size: 0.8rem;
+}
+
+.timeline hr {
+  border: 0;
+  border-top: 1px solid var(--card-border);
+  margin: 8px 0;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* CANVAS & CHARTS */
+.chart-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
 
 </style>
 
@@ -90,114 +183,93 @@ height:250px;
 <body>
 
 <div class="header">
-
-Driver Monitoring Dashboard
-
+  DRIVER MONITORING SYSTEM
 </div>
-
 
 <div class="container">
 
+  <div class="card col-4">
+    <div>
+      <h3>Fatigue Score</h3>
+      <p class="status" id="fatigue">--</p>
+      
+      <h3>Emotion</h3>
+      <p class="status" id="emotion">--</p>
+      
+      <h3>Phone Detection</h3>
+      <p class="status" id="phone">--</p>
+      
+      <h3>Lane Drift Risk</h3>
+      <p class="status" id="lane">--</p>
+      
+      <h3>Driver Safety Status</h3>
+      <p class="status" id="safetyStatus">--</p>
+    </div>
+  </div>
 
-<!-- PRIMARY STATUS PANEL -->
+  <div class="card col-4">
+    <div>
+      <h3>Driver Risk Index</h3>
+      <p class="status" id="riskScore">--</p>
+      
+      <h3>Attention Stability</h3>
+      <p class="status" id="attentionScore">--</p>
+      
+      <h3>Session Duration</h3>
+      <div class="metric" id="sessionDuration">--</div>
+      
+      <h3>Session Avg Fatigue</h3>
+      <div class="metric" id="avgFatigue">--</div>
+    </div>
+  </div>
 
-<div class="card">
+  <div class="card col-4">
+    <div>
+      <h3>Session Event Counters</h3>
+      <div class="metric" id="fatigueEvents"></div>
+      <div class="metric" id="phoneEvents"></div>
+      <div class="metric" id="laneEvents"></div>
+    </div>
+  </div>
 
-<h3>Fatigue Score</h3>
-<p class="status" id="fatigue"></p>
+  <div class="card col-4">
+    <div>
+      <h3>Driver Event Timeline</h3>
+      <div id="timeline" class="timeline">
+        Loading timeline...
+      </div>
+    </div>
+  </div>
 
-<h3>Emotion</h3>
-<p class="status" id="emotion"></p>
+  <div class="card col-4">
+    <h3>Fatigue Score Trend</h3>
+    <div class="chart-container">
+      <canvas id="fatigueChart"></canvas>
+    </div>
+  </div>
 
-<h3>Phone Detection</h3>
-<p class="status" id="phone"></p>
+  <div class="card col-4">
+    <h3>EAR Trend</h3>
+    <div class="chart-container">
+      <canvas id="earChart"></canvas>
+    </div>
+  </div>
 
-<h3>Lane Drift Risk</h3>
-<p class="status" id="lane"></p>
+  <div class="card col-6">
+    <h3>Lane Drift Risk</h3>
+    <div class="chart-container">
+      <canvas id="laneChart"></canvas>
+    </div>
+  </div>
 
-<h3>Driver Safety Status</h3>
-<p class="status" id="safetyStatus"></p>
-
-</div>
-
-
-<!-- ADVANCED METRICS PANEL -->
-
-<div class="card">
-
-<h3>Driver Risk Index</h3>
-<p class="status" id="riskScore"></p>
-
-<h3>Attention Stability</h3>
-<p class="status" id="attentionScore"></p>
-
-<h3>Session Duration</h3>
-<p class="metric" id="sessionDuration"></p>
-
-<h3>Session Avg Fatigue</h3>
-<p class="metric" id="avgFatigue"></p>
-
-</div>
-
-
-<!-- FATIGUE CHART -->
-
-<div class="card">
-<canvas id="fatigueChart"></canvas>
-</div>
-
-
-<!-- EAR CHART -->
-
-<div class="card">
-<canvas id="earChart"></canvas>
-</div>
-
-
-<!-- LANE DRIFT CHART -->
-
-<div class="card">
-<canvas id="laneChart"></canvas>
-</div>
-
-
-<!-- RISK SCORE TREND CHART -->
-
-<div class="card">
-<canvas id="riskChart"></canvas>
-</div>
-
-
-<!-- EVENT COUNTER PANEL -->
-
-<div class="card">
-
-<h3>Session Event Counters</h3>
-
-<div class="metric" id="fatigueEvents"></div>
-<div class="metric" id="phoneEvents"></div>
-<div class="metric" id="laneEvents"></div>
-
-</div>
-
-
-<!-- TIMELINE PANEL -->
-
-<div class="card">
-
-<h3>Driver Event Timeline</h3>
-
-<div id="timeline" class="timeline">
-
-Loading timeline...
+  <div class="card col-6">
+    <h3>Risk Index Trend</h3>
+    <div class="chart-container">
+      <canvas id="riskChart"></canvas>
+    </div>
+  </div>
 
 </div>
-
-</div>
-
-
-</div>
-
 
 <script>
 
@@ -208,300 +280,238 @@ let riskChart;
 
 let startTime = Date.now();
 
+// Reusable Chart JS theme to make things look insanely professional
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: { duration: 0 }, 
+  plugins: {
+    legend: { display: false }
+  },
+  scales: {
+    x: {
+      display: false 
+    },
+    y: {
+      grid: {
+        color: 'rgba(255, 255, 255, 0.05)',
+        drawBorder: false
+      },
+      ticks: {
+        color: '#9ca3af',
+        font: { size: 10 }
+      }
+    }
+  }
+};
 
 async function fetchData(){
+  const response = await fetch("/data");
+  const data = await response.json();
 
-const response = await fetch("/data");
-const data = await response.json();
+  if(!data.latest) return;
 
-if(!data.latest) return;
+  /* ORIGINAL STATUS VALUES */
+  document.getElementById("fatigue").innerText = data.latest.fatigue_score;
+  document.getElementById("emotion").innerText = data.latest.emotion;
+  document.getElementById("phone").innerText = data.latest.phone_detected;
+  document.getElementById("lane").innerText = data.latest.lane_drift_probability;
 
+  /* NEW SAFETY STATUS ENGINE */
+  updateSafetyStatus(data.latest);
 
-/* ORIGINAL STATUS VALUES */
+  /* NEW SESSION METRICS */
+  updateSessionMetrics(data.history);
 
-document.getElementById("fatigue").innerText =
-data.latest.fatigue_score;
+  /* CHARTS */
+  updateCharts(data.history);
 
-document.getElementById("emotion").innerText =
-data.latest.emotion;
-
-document.getElementById("phone").innerText =
-data.latest.phone_detected;
-
-document.getElementById("lane").innerText =
-data.latest.lane_drift_probability;
-
-
-/* NEW SAFETY STATUS ENGINE */
-
-updateSafetyStatus(data.latest);
-
-/* NEW SESSION METRICS */
-
-updateSessionMetrics(data.history);
-
-/* CHARTS */
-
-updateCharts(data.history);
-
-/* TIMELINE */
-
-updateTimeline(data.history);
-
+  /* TIMELINE */
+  updateTimeline(data.history);
 }
-
 
 /* SAFETY STATUS ENGINE */
-
 function updateSafetyStatus(latest){
+  let score = latest.fatigue_score;
+  let statusText = "";
+  let className = "";
 
-let score = latest.fatigue_score;
+  if(score < 25){
+    statusText="SAFE";
+    className="safe";
+  }
+  else if(score < 50){
+    statusText="CAUTION";
+    className="warn";
+  }
+  else{
+    statusText="CRITICAL";
+    className="critical";
+  }
 
-let statusText = "";
-
-if(score < 25){
-
-statusText="SAFE";
-className="safe";
-
+  let el=document.getElementById("safetyStatus");
+  el.innerText=statusText;
+  el.className="status "+className;
 }
-else if(score < 50){
-
-statusText="CAUTION";
-className="warn";
-
-}
-else{
-
-statusText="CRITICAL";
-className="critical";
-
-}
-
-let el=document.getElementById("safetyStatus");
-
-el.innerText=statusText;
-el.className="status "+className;
-
-}
-
 
 /* SESSION METRICS ENGINE */
-
 function updateSessionMetrics(history){
+  let fatigueAvg = history.reduce((a,b)=>a+b.fatigue_score,0) / history.length;
+  document.getElementById("avgFatigue").innerText = fatigueAvg.toFixed(2);
 
-let fatigueAvg =
-history.reduce((a,b)=>a+b.fatigue_score,0)
-/history.length;
+  let duration = (Math.floor((Date.now()-startTime)/60000));
+  document.getElementById("sessionDuration").innerText = duration+" minutes";
 
-document.getElementById("avgFatigue").innerText =
-fatigueAvg.toFixed(2);
+  let fatigueEvents = history.filter(x=>x.fatigue_score>=40).length;
+  let phoneEvents = history.filter(x=>x.phone_detected==true).length;
+  let laneEvents = history.filter(x=>x.lane_drift_probability>=20).length;
 
+  document.getElementById("fatigueEvents").innerHTML = "<span>Fatigue Alerts</span><span class='warn'>"+fatigueEvents+"</span>";
+  document.getElementById("phoneEvents").innerHTML = "<span>Phone Events</span><span class='critical'>"+phoneEvents+"</span>";
+  document.getElementById("laneEvents").innerHTML = "<span>Lane Drift Events</span><span class='warn'>"+laneEvents+"</span>";
 
-let duration =
-(Math.floor((Date.now()-startTime)/60000));
+  /* DRIVER RISK SCORE */
+  let riskScore = Math.min(100, fatigueAvg*0.6 + phoneEvents*2 + laneEvents*1.5);
+  document.getElementById("riskScore").innerText = riskScore.toFixed(1);
 
-document.getElementById("sessionDuration").innerText =
-duration+" minutes";
-
-
-let fatigueEvents =
-history.filter(x=>x.fatigue_score>=40).length;
-
-let phoneEvents =
-history.filter(x=>x.phone_detected==true).length;
-
-let laneEvents =
-history.filter(x=>x.lane_drift_probability>=20).length;
-
-document.getElementById("fatigueEvents").innerText =
-"Fatigue Alerts: "+fatigueEvents;
-
-document.getElementById("phoneEvents").innerText =
-"Phone Events: "+phoneEvents;
-
-document.getElementById("laneEvents").innerText =
-"Lane Drift Events: "+laneEvents;
-
-
-/* DRIVER RISK SCORE */
-
-let riskScore =
-Math.min(100,
-fatigueAvg*0.6 +
-phoneEvents*2 +
-laneEvents*1.5
-);
-
-document.getElementById("riskScore").innerText =
-riskScore.toFixed(1);
-
-
-/* ATTENTION STABILITY */
-
-let stability =
-100-riskScore;
-
-document.getElementById("attentionScore").innerText =
-stability.toFixed(1)+"%";
-
+  /* ATTENTION STABILITY */
+  let stability = 100-riskScore;
+  document.getElementById("attentionScore").innerText = stability.toFixed(1)+"%";
 }
-
 
 /* CHART ENGINE */
-
 function updateCharts(history){
+  const labels = history.map(row=>row.timestamp);
+  const fatigueValues = history.map(row=>row.fatigue_score);
+  const earValues = history.map(row=>row.EAR);
+  const laneValues = history.map(row=>row.lane_drift_probability);
+  const riskValues = history.map(row=>row.fatigue_score*0.7);
 
-const labels =
-history.map(row=>row.timestamp);
+  /* FATIGUE CHART */
+  if(fatigueChart) fatigueChart.destroy();
+  fatigueChart = new Chart(document.getElementById("fatigueChart"),{
+    type:"line",
+    data:{
+      labels:labels,
+      datasets:[{
+        label:"Fatigue Score",
+        data:fatigueValues,
+        borderColor: '#f59e0b',
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 0,
+        fill: true,
+        backgroundColor: 'rgba(245, 158, 11, 0.05)'
+      }]
+    },
+    options: chartOptions
+  });
 
-const fatigueValues =
-history.map(row=>row.fatigue_score);
+  /* EAR CHART */
+  if(earChart) earChart.destroy();
+  earChart = new Chart(document.getElementById("earChart"),{
+    type:"line",
+    data:{
+      labels:labels,
+      datasets:[{
+        label:"EAR Trend",
+        data:earValues,
+        borderColor: '#10b981',
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 0,
+        fill: true,
+        backgroundColor: 'rgba(16, 185, 129, 0.05)'
+      }]
+    },
+    options: chartOptions
+  });
 
-const earValues =
-history.map(row=>row.EAR);
+  /* LANE CHART */
+  if(laneChart) laneChart.destroy();
+  laneChart = new Chart(document.getElementById("laneChart"),{
+    type:"line",
+    data:{
+      labels:labels,
+      datasets:[{
+        label:"Lane Drift Risk",
+        data:laneValues,
+        borderColor: '#6366f1',
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 0,
+        fill: true,
+        backgroundColor: 'rgba(99, 102, 241, 0.05)'
+      }]
+    },
+    options: chartOptions
+  });
 
-const laneValues =
-history.map(row=>row.lane_drift_probability);
-
-const riskValues =
-history.map(row=>row.fatigue_score*0.7);
-
-
-/* FATIGUE CHART */
-
-if(fatigueChart) fatigueChart.destroy();
-
-fatigueChart =
-new Chart(document.getElementById("fatigueChart"),{
-type:"line",
-data:{labels:labels,datasets:[{label:"Fatigue Score",data:fatigueValues}]},
-options:{responsive:true,maintainAspectRatio:false}
-});
-
-
-/* EAR CHART */
-
-if(earChart) earChart.destroy();
-
-earChart =
-new Chart(document.getElementById("earChart"),{
-type:"line",
-data:{labels:labels,datasets:[{label:"EAR Trend",data:earValues}]},
-options:{responsive:true,maintainAspectRatio:false}
-});
-
-
-/* LANE CHART */
-
-if(laneChart) laneChart.destroy();
-
-laneChart =
-new Chart(document.getElementById("laneChart"),{
-type:"line",
-data:{labels:labels,datasets:[{label:"Lane Drift Risk",data:laneValues}]},
-options:{responsive:true,maintainAspectRatio:false}
-});
-
-
-/* RISK CHART */
-
-if(riskChart) riskChart.destroy();
-
-riskChart =
-new Chart(document.getElementById("riskChart"),{
-type:"line",
-data:{labels:labels,datasets:[{label:"Risk Index",data:riskValues}]},
-options:{responsive:true,maintainAspectRatio:false}
-});
-
+  /* RISK CHART */
+  if(riskChart) riskChart.destroy();
+  riskChart = new Chart(document.getElementById("riskChart"),{
+    type:"line",
+    data:{
+      labels:labels,
+      datasets:[{
+        label:"Risk Index",
+        data:riskValues,
+        borderColor: '#ef4444',
+        borderWidth: 2,
+        tension: 0.4,
+        pointRadius: 0,
+        fill: true,
+        backgroundColor: 'rgba(239, 68, 68, 0.05)'
+      }]
+    },
+    options: chartOptions
+  });
 }
-
 
 /* TIMELINE ENGINE */
-
 function updateTimeline(history){
+  let timelineHTML = "";
 
-let timelineHTML = "";
+  history.slice(-20).reverse().forEach(row => {
+    let eventDetected = false;
+    let eventText = "";
 
-history.slice(-20).reverse().forEach(row => {
+    /* FATIGUE ALERT */
+    if(row.fatigue_score >= 40){
+      eventText += "⚠️ Fatigue spike detected<br>";
+      eventDetected = true;
+    }
 
-let eventDetected = false;
+    /* PHONE DISTRACTION */
+    if(row.phone_detected === true){
+      eventText += "📱 Phone distraction detected<br>";
+      eventDetected = true;
+    }
 
-let eventText = "";
+    /* LANE DRIFT ALERT */
+    if(row.lane_drift_probability >= 20){
+      eventText += "🚗 Lane drift risk increased<br>";
+      eventDetected = true;
+    }
 
+    /* EMOTION ALERT */
+    if(row.emotion === "angry"){
+      eventText += "😠 Emotion changed: angry<br>";
+      eventDetected = true;
+    }
 
-/* FATIGUE ALERT */
+    /* ADD TIMESTAMPED ENTRY */
+    if(eventDetected){
+      timelineHTML += "<b>" + row.timestamp + "</b><br>" + eventText + "<hr>";
+    }
+  });
 
-if(row.fatigue_score >= 40){
-
-eventText += "⚠️ Fatigue spike detected<br>";
-
-eventDetected = true;
-
+  document.getElementById("timeline").innerHTML = timelineHTML || "<span style='color:var(--safe)'>✅ No recent risk events detected</span>";
 }
-
-
-/* PHONE DISTRACTION */
-
-if(row.phone_detected === true){
-
-eventText += "📱 Phone distraction detected<br>";
-
-eventDetected = true;
-
-}
-
-
-/* LANE DRIFT ALERT */
-
-if(row.lane_drift_probability >= 20){
-
-eventText += "🚗 Lane drift risk increased<br>";
-
-eventDetected = true;
-
-}
-
-
-/* EMOTION ALERT */
-
-if(row.emotion === "angry"){
-
-eventText += "😠 Emotion changed: angry<br>";
-
-eventDetected = true;
-
-}
-
-
-/* ADD TIMESTAMPED ENTRY */
-
-if(eventDetected){
-
-timelineHTML +=
-"<b>" +
-row.timestamp +
-"</b><br>" +
-eventText +
-"<hr>";
-
-}
-
-});
-
-
-document.getElementById("timeline").innerHTML =
-timelineHTML ||
-"✅ No recent risk events detected";
-
-}
-
 
 setInterval(fetchData,1000);
 
 </script>
 
 </body>
-
 </html>
