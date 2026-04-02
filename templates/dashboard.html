@@ -8,19 +8,23 @@
 <title>Driver Monitoring Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --bg-color: #060810;
-  --card-bg: rgba(10, 14, 26, 0.75);
-  --card-border: rgba(255, 255, 255, 0.05);
-  --text-main: #e2e8f0;
-  --text-muted: #64748b;
-  --accent-primary: #3b82f6;
+  --bg-color: #030408;
+  --card-bg: rgba(5, 7, 15, 0.85);
+  --accent-cyan: #00f0ff;
+  --accent-magenta: #ff0055;
+  --accent-purple: #7000ff;
+  
+  /* Status Colors */
   --safe: #00ffaa;
   --warn: #ffaa00;
-  --critical: #ff3344;
+  --critical: #ff0055;
+  
+  --text-main: #e2e8f0;
+  --text-muted: #495a74;
 }
 
 * {
@@ -28,41 +32,56 @@
 }
 
 body {
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: 'Share Tech Mono', monospace;
   margin: 0;
   background-color: var(--bg-color);
   background-image: 
-    radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(239, 68, 68, 0.03) 0%, transparent 40%);
+    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* SCANLINE ANIMATION EFFECT */
+body::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.03));
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.6;
 }
 
 /* HIGH-TECH HEADER */
 .header {
-  background: rgba(6, 8, 16, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-  color: #ffffff;
-  padding: 18px 20px;
+  background: rgba(3, 4, 8, 0.95);
+  border-bottom: 2px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  padding: 15px 20px;
   text-align: center;
   font-family: 'Orbitron', sans-serif;
-  font-size: 1.1rem;
-  letter-spacing: 0.3em;
+  font-weight: 900;
+  font-size: 1.4rem;
+  letter-spacing: 0.5em;
   position: sticky;
   top: 0;
   z-index: 50;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+  box-shadow: 0 5px 20px rgba(0, 240, 255, 0.15);
 }
 
 /* CONTAINER */
 .container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-  padding: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -76,88 +95,83 @@ body {
   .col-8 { grid-column: span 8; }
 }
 
-/* GLASSMORPHIC HUD CARDS */
+/* SCIFI ANGULAR HUD CARDS */
 .card {
   background: var(--card-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding: 24px;
-  border-radius: 12px;
-  border: 1px solid var(--card-border);
+  padding: 20px;
+  border: 1px solid rgba(0, 240, 255, 0.2);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
-/* Cyber corner decors */
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 10px; height: 10px;
-  border-top: 2px solid rgba(255, 255, 255, 0.1);
-  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  clip-path: polygon(
+    0 0, 
+    calc(100% - 15px) 0, 
+    100% 15px, 
+    100% 100%, 
+    15px 100%, 
+    0 calc(100% - 15px)
+  );
+  box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05);
 }
 
 .card:hover {
-  border-color: rgba(59, 130, 246, 0.2);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.15), inset 0 0 20px rgba(0, 240, 255, 0.05);
+}
+
+/* Decorative Card UI Bracket Hooks */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 5px; right: 5px;
+  width: 10px; height: 10px;
+  border-top: 2px solid var(--accent-magenta);
+  border-right: 2px solid var(--accent-magenta);
+  pointer-events: none;
 }
 
 h3 {
-  font-size: 0.75rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--text-muted);
-  margin: 0 0 16px 0;
-  display: flex;
-  align-items: center;
+  letter-spacing: 0.2em;
+  color: var(--accent-cyan);
+  margin: 0 0 15px 0;
+  opacity: 0.8;
 }
 
-h3::before {
-  content: '';
-  display: inline-block;
-  width: 4px; height: 4px;
-  background: currentColor;
-  margin-right: 8px;
-}
-
-/* HUD TYPOGRAPHY & LIVE METRICS */
+/* TYPOGRAPHY & LIVE DIGITAL READOUTS */
 .status {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 20px 0;
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin: 0 0 16px 0;
   color: #ffffff;
-}
-
-.status:last-child {
-  margin-bottom: 0;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
 .metric {
   font-size: 1.1rem;
-  font-weight: 500;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   color: var(--text-main);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px dashed rgba(0, 240, 255, 0.1);
+  padding-bottom: 4px;
 }
 
-/* HUD GLOWS & ALERTS */
-.safe { color: var(--safe); text-shadow: 0 0 15px rgba(0, 255, 170, 0.3); }
-.warn { color: var(--warn); text-shadow: 0 0 15px rgba(255, 170, 0, 0.3); }
-.critical { color: var(--critical); text-shadow: 0 0 20px rgba(255, 51, 68, 0.4); animation: pulse-danger 1.5s infinite alternate; }
+/* NEON HARD GLOWS */
+.safe { color: var(--safe); text-shadow: 0 0 10px rgba(0, 255, 170, 0.6); }
+.warn { color: var(--warn); text-shadow: 0 0 10px rgba(255, 170, 0, 0.6); }
+.critical { color: var(--critical); text-shadow: 0 0 15px rgba(255, 0, 85, 0.8); animation: glitch-text 2s infinite; }
 
-@keyframes pulse-danger {
-  0% { opacity: 0.8; }
-  100% { opacity: 1; text-shadow: 0 0 30px rgba(255, 51, 68, 0.8); }
+@keyframes glitch-text {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; text-shadow: -2px 0 var(--accent-cyan), 2px 0 var(--critical); }
+  100% { opacity: 1; }
 }
 
 /* EVENT TIMELINE */
@@ -169,24 +183,22 @@ h3::before {
 }
 
 .timeline b {
-  color: var(--accent-primary);
-  font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: 0.05em;
+  color: var(--accent-cyan);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
 }
 
 .timeline hr {
   border: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  margin: 10px 0;
+  border-top: 1px solid rgba(0, 240, 255, 0.1);
+  margin: 8px 0;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+::-webkit-scrollbar-thumb { background: var(--accent-cyan); box-shadow: 0 0 5px var(--accent-cyan); }
 
-/* CHARTS */
+/* CANVAS & CHARTS */
 .chart-container {
   position: relative;
   height: 200px;
@@ -205,49 +217,49 @@ canvas {
 <body>
 
 <div class="header">
-  SYSTEM.ON // DRIVER MONITORING
+  // DMS_LIVE_INTERFACE_v4.2
 </div>
 
 <div class="container">
 
   <div class="card col-4">
     <div>
-      <h3>Fatigue Score</h3>
+      <h3>[01] Fatigue Score</h3>
       <p class="status" id="fatigue">--</p>
       
-      <h3>Emotion</h3>
+      <h3>[02] Emotion</h3>
       <p class="status" id="emotion">--</p>
       
-      <h3>Phone Detection</h3>
+      <h3>[03] Phone Detection</h3>
       <p class="status" id="phone">--</p>
       
-      <h3>Lane Drift Risk</h3>
+      <h3>[04] Lane Drift Risk</h3>
       <p class="status" id="lane">--</p>
       
-      <h3>Driver Safety Status</h3>
+      <h3>[05] Driver Safety Status</h3>
       <p class="status" id="safetyStatus">--</p>
     </div>
   </div>
 
   <div class="card col-4">
     <div>
-      <h3>Driver Risk Index</h3>
+      <h3>[06] Driver Risk Index</h3>
       <p class="status" id="riskScore">--</p>
       
-      <h3>Attention Stability</h3>
+      <h3>[07] Attention Stability</h3>
       <p class="status" id="attentionScore">--</p>
       
-      <h3>Session Duration</h3>
+      <h3>[08] Session Duration</h3>
       <div class="metric" id="sessionDuration">--</div>
       
-      <h3>Session Avg Fatigue</h3>
+      <h3>[09] Session Avg Fatigue</h3>
       <div class="metric" id="avgFatigue">--</div>
     </div>
   </div>
 
   <div class="card col-4">
     <div>
-      <h3>Session Event Counters</h3>
+      <h3>[10] Session Event Counters</h3>
       <div class="metric" id="fatigueEvents"></div>
       <div class="metric" id="phoneEvents"></div>
       <div class="metric" id="laneEvents"></div>
@@ -256,36 +268,36 @@ canvas {
 
   <div class="card col-4">
     <div>
-      <h3>Driver Event Timeline</h3>
+      <h3>[11] Driver Event Timeline</h3>
       <div id="timeline" class="timeline">
-        Fetching secure relay...
+        Awaiting telemetry data...
       </div>
     </div>
   </div>
 
   <div class="card col-4">
-    <h3>Fatigue Score Trend</h3>
+    <h3>[12] Fatigue Score Trend</h3>
     <div class="chart-container">
       <canvas id="fatigueChart"></canvas>
     </div>
   </div>
 
   <div class="card col-4">
-    <h3>EAR Trend</h3>
+    <h3>[13] EAR Trend</h3>
     <div class="chart-container">
       <canvas id="earChart"></canvas>
     </div>
   </div>
 
   <div class="card col-6">
-    <h3>Lane Drift Risk</h3>
+    <h3>[14] Lane Drift Risk</h3>
     <div class="chart-container">
       <canvas id="laneChart"></canvas>
     </div>
   </div>
 
   <div class="card col-6">
-    <h3>Risk Index Trend</h3>
+    <h3>[15] Risk Index Trend</h3>
     <div class="chart-container">
       <canvas id="riskChart"></canvas>
     </div>
@@ -302,7 +314,6 @@ let riskChart;
 
 let startTime = Date.now();
 
-// Optimized charts for visual contrast in vehicle cabins
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -316,12 +327,12 @@ const chartOptions = {
     },
     y: {
       grid: {
-        color: 'rgba(255, 255, 255, 0.02)',
+        color: 'rgba(0, 240, 255, 0.05)',
         drawBorder: false
       },
       ticks: {
-        color: '#64748b',
-        font: { size: 10, family: 'Space Grotesk' }
+        color: '#495a74',
+        font: { size: 10, family: 'Share Tech Mono' }
       }
     }
   }
@@ -406,10 +417,10 @@ function updateCharts(history){
         data:fatigueValues,
         borderColor: '#ffaa00',
         borderWidth: 2,
-        tension: 0.3,
+        tension: 0.2,
         pointRadius: 0,
         fill: true,
-        backgroundColor: 'rgba(255, 170, 0, 0.02)'
+        backgroundColor: 'rgba(255, 170, 0, 0.03)'
       }]
     },
     options: chartOptions
@@ -425,10 +436,10 @@ function updateCharts(history){
         data:earValues,
         borderColor: '#00ffaa',
         borderWidth: 2,
-        tension: 0.3,
+        tension: 0.2,
         pointRadius: 0,
         fill: true,
-        backgroundColor: 'rgba(0, 255, 170, 0.02)'
+        backgroundColor: 'rgba(0, 255, 170, 0.03)'
       }]
     },
     options: chartOptions
@@ -442,12 +453,12 @@ function updateCharts(history){
       datasets:[{
         label:"Lane Drift Risk",
         data:laneValues,
-        borderColor: '#3b82f6',
+        borderColor: '#00f0ff',
         borderWidth: 2,
-        tension: 0.3,
+        tension: 0.2,
         pointRadius: 0,
         fill: true,
-        backgroundColor: 'rgba(59, 130, 246, 0.02)'
+        backgroundColor: 'rgba(0, 240, 255, 0.03)'
       }]
     },
     options: chartOptions
@@ -461,12 +472,12 @@ function updateCharts(history){
       datasets:[{
         label:"Risk Index",
         data:riskValues,
-        borderColor: '#ff3344',
+        borderColor: '#ff0055',
         borderWidth: 2,
-        tension: 0.3,
+        tension: 0.2,
         pointRadius: 0,
         fill: true,
-        backgroundColor: 'rgba(255, 51, 68, 0.02)'
+        backgroundColor: 'rgba(255, 0, 85, 0.03)'
       }]
     },
     options: chartOptions
@@ -505,7 +516,7 @@ function updateTimeline(history){
     }
   });
 
-  document.getElementById("timeline").innerHTML = timelineHTML || "<span style='color:var(--safe)'>✅ All systems nominal</span>";
+  document.getElementById("timeline").innerHTML = timelineHTML || "<span style='color:var(--safe)'>[ SYSTEM_NOMINAL ]</span>";
 }
 
 setInterval(fetchData,1000);
@@ -536,7 +547,7 @@ setInterval(fetchData,1000);
       oscillator.start();
       oscillator.stop(audioCtx.currentTime + 0.5);
     } catch (e) {
-      console.warn("Audio Context blocked. User interaction required first.");
+      console.warn("Audio blocked by browser policy.");
     }
   }
 
@@ -549,7 +560,6 @@ setInterval(fetchData,1000);
   function triggerTTS() {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
-      
       const utterance = new SpeechSynthesisUtterance("Warning. Critical safety status detected. Please focus on driving.");
       utterance.rate = 1.0; 
       utterance.pitch = 1.0;
@@ -566,7 +576,6 @@ setInterval(fetchData,1000);
         playBeep();
         triggerVibrate();
         triggerTTS();
-        
         wasCritical = true;
       } else if (currentStatus !== "CRITICAL") {
         wasCritical = false;
