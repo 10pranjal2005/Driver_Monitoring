@@ -45,6 +45,15 @@ font-weight:bold;
 margin-top:10px;
 }
 
+/* TIMELINE PANEL */
+
+.timeline{
+max-height:320px;
+overflow-y:auto;
+font-size:14px;
+line-height:1.6;
+}
+
 /* MOBILE MODE */
 
 @media(max-width:768px){
@@ -66,6 +75,7 @@ padding:15px;
 
 canvas{
 max-width:100%;
+height:250px;
 }
 
 </style>
@@ -80,8 +90,11 @@ Driver Monitoring Dashboard
 
 </div>
 
+
 <div class="container">
 
+
+<!-- STATUS PANEL -->
 
 <div class="card">
 
@@ -100,12 +113,16 @@ Driver Monitoring Dashboard
 </div>
 
 
+<!-- FATIGUE CHART -->
+
 <div class="card">
 
 <canvas id="fatigueChart"></canvas>
 
 </div>
 
+
+<!-- EAR CHART -->
 
 <div class="card">
 
@@ -114,9 +131,26 @@ Driver Monitoring Dashboard
 </div>
 
 
+<!-- LANE DRIFT CHART -->
+
 <div class="card">
 
 <canvas id="laneChart"></canvas>
+
+</div>
+
+
+<!-- TIMELINE ANALYTICS PANEL (NEW) -->
+
+<div class="card">
+
+<h3>Driver Event Timeline</h3>
+
+<div id="timeline" class="timeline">
+
+Loading timeline...
+
+</div>
 
 </div>
 
@@ -126,10 +160,13 @@ Driver Monitoring Dashboard
 
 <script>
 
+
 let fatigueChart;
 let earChart;
 let laneChart;
 
+
+/* FETCH DATA FROM BACKEND */
 
 async function fetchData(){
 
@@ -138,6 +175,8 @@ const data = await response.json();
 
 if(!data.latest) return;
 
+
+/* UPDATE STATUS VALUES */
 
 document.getElementById("fatigue").innerText =
 data.latest.fatigue_score;
@@ -152,10 +191,16 @@ document.getElementById("lane").innerText =
 data.latest.lane_drift_probability;
 
 
+/* UPDATE VISUALS */
+
 updateCharts(data.history);
+
+updateTimeline(data.history);
 
 }
 
+
+/* UPDATE CHARTS */
 
 function updateCharts(history){
 
@@ -171,6 +216,8 @@ history.map(row=>row.EAR);
 const laneValues =
 history.map(row=>row.lane_drift_probability);
 
+
+/* FATIGUE CHART */
 
 if(fatigueChart) fatigueChart.destroy();
 
@@ -200,6 +247,8 @@ maintainAspectRatio:false
 );
 
 
+/* EAR CHART */
+
 if(earChart) earChart.destroy();
 
 earChart =
@@ -227,6 +276,8 @@ maintainAspectRatio:false
 }
 );
 
+
+/* LANE DRIFT CHART */
 
 if(laneChart) laneChart.destroy();
 
@@ -258,7 +309,97 @@ maintainAspectRatio:false
 }
 
 
+/* TIMELINE ANALYTICS ENGINE (NEW) */
+
+function updateTimeline(history){
+
+let timelineHTML = "";
+
+history.slice(-20).reverse().forEach(row => {
+
+let eventDetected = false;
+
+let eventText = "";
+
+
+/* FATIGUE ALERT */
+
+if(row.fatigue_score >= 40){
+
+eventText += "⚠️ Fatigue spike detected<br>";
+
+eventDetected = true;
+
+}
+
+
+/* PHONE DISTRACTION */
+
+if(row.phone_detected === true){
+
+eventText += "📱 Phone distraction detected<br>";
+
+eventDetected = true;
+
+}
+
+
+/* LANE DRIFT */
+
+if(row.lane_drift_probability >= 20){
+
+eventText += "🚗 Lane drift risk increased<br>";
+
+eventDetected = true;
+
+}
+
+
+/* EMOTION ALERT */
+
+if(row.emotion === "angry"){
+
+eventText += "😠 Emotion changed: angry<br>";
+
+eventDetected = true;
+
+}
+
+
+/* ADD ENTRY */
+
+if(eventDetected){
+
+timelineHTML +=
+
+"<b>" +
+
+row.timestamp +
+
+"</b><br>" +
+
+eventText +
+
+"<hr>";
+
+}
+
+});
+
+
+document.getElementById("timeline").innerHTML =
+
+timelineHTML ||
+
+"✅ No recent risk events detected";
+
+}
+
+
+/* AUTO REFRESH EVERY SECOND */
+
 setInterval(fetchData,1000);
+
 
 </script>
 
