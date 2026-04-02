@@ -422,29 +422,78 @@ options:{responsive:true,maintainAspectRatio:false}
 
 function updateTimeline(history){
 
-let html="";
+let timelineHTML = "";
 
-history.slice(-20).reverse().forEach(row=>{
+history.slice(-20).reverse().forEach(row => {
 
-if(row.fatigue_score>=40)
-html+="⚠️ Fatigue spike<br>";
+let eventDetected = false;
 
-if(row.phone_detected==true)
-html+="📱 Phone detected<br>";
+let eventText = "";
 
-if(row.lane_drift_probability>=20)
-html+="🚗 Lane drift<br>";
 
-if(row.emotion=="angry")
-html+="😠 Angry emotion<br>";
+/* FATIGUE ALERT */
 
-if(html!="")
-html+="<hr>";
+if(row.fatigue_score >= 40){
+
+eventText += "⚠️ Fatigue spike detected<br>";
+
+eventDetected = true;
+
+}
+
+
+/* PHONE DISTRACTION */
+
+if(row.phone_detected === true){
+
+eventText += "📱 Phone distraction detected<br>";
+
+eventDetected = true;
+
+}
+
+
+/* LANE DRIFT ALERT */
+
+if(row.lane_drift_probability >= 20){
+
+eventText += "🚗 Lane drift risk increased<br>";
+
+eventDetected = true;
+
+}
+
+
+/* EMOTION ALERT */
+
+if(row.emotion === "angry"){
+
+eventText += "😠 Emotion changed: angry<br>";
+
+eventDetected = true;
+
+}
+
+
+/* ADD TIMESTAMPED ENTRY */
+
+if(eventDetected){
+
+timelineHTML +=
+"<b>" +
+row.timestamp +
+"</b><br>" +
+eventText +
+"<hr>";
+
+}
 
 });
 
+
 document.getElementById("timeline").innerHTML =
-html || "✅ No recent risk events detected";
+timelineHTML ||
+"✅ No recent risk events detected";
 
 }
 
