@@ -63,12 +63,12 @@ body::before {
   background: rgba(3, 4, 8, 0.95);
   border-bottom: 2px solid var(--accent-cyan);
   color: var(--accent-cyan);
-  padding: 15px 20px;
+  padding: 12px 10px;
   text-align: center;
   font-family: 'Orbitron', sans-serif;
   font-weight: 900;
-  font-size: 1.4rem;
-  letter-spacing: 0.5em;
+  font-size: 1rem; /* Scaled down for mobile fit */
+  letter-spacing: 0.3em;
   position: sticky;
   top: 0;
   z-index: 50;
@@ -79,11 +79,19 @@ body::before {
 /* CONTAINER */
 .container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
-  padding: 24px;
+  grid-template-columns: 1fr; /* Stacks vertically on mobile */
+  gap: 15px;
+  padding: 15px;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+@media(min-width: 768px) {
+  .container {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 24px;
+  }
 }
 
 @media(min-width: 1024px) {
@@ -98,7 +106,7 @@ body::before {
 /* SCIFI ANGULAR HUD CARDS */
 .card {
   background: var(--card-bg);
-  padding: 20px;
+  padding: 15px;
   border: 1px solid rgba(0, 240, 255, 0.2);
   display: flex;
   flex-direction: column;
@@ -113,6 +121,12 @@ body::before {
     0 calc(100% - 15px)
   );
   box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.05);
+}
+
+@media(min-width: 768px) {
+  .card {
+    padding: 20px;
+  }
 }
 
 .card:hover {
@@ -133,28 +147,35 @@ body::before {
 
 h3 {
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
   color: var(--accent-cyan);
-  margin: 0 0 15px 0;
+  margin: 0 0 12px 0;
   opacity: 0.8;
 }
 
 /* TYPOGRAPHY & LIVE DIGITAL READOUTS */
 .status {
-  font-size: 2.2rem;
+  font-size: 1.6rem; /* Scaled down slightly to prevent text overflow on small devices */
   font-weight: 900;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
   color: #ffffff;
   letter-spacing: 0.05em;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
+@media(min-width: 768px) {
+  .status {
+    font-size: 2.2rem;
+    margin: 0 0 16px 0;
+  }
+}
+
 .metric {
-  font-size: 1.1rem;
-  margin-bottom: 12px;
+  font-size: 1rem;
+  margin-bottom: 10px;
   color: var(--text-main);
   display: flex;
   justify-content: space-between;
@@ -176,7 +197,7 @@ h3 {
 
 /* EVENT TIMELINE */
 .timeline {
-  max-height: 250px;
+  max-height: 200px; /* Shortened slightly for mobile constraints */
   overflow-y: auto;
   font-size: 0.85rem;
   line-height: 1.6;
@@ -185,7 +206,7 @@ h3 {
 .timeline b {
   color: var(--accent-cyan);
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .timeline hr {
@@ -201,8 +222,14 @@ h3 {
 /* CANVAS & CHARTS */
 .chart-container {
   position: relative;
-  height: 200px;
+  height: 160px; /* Scaled down height for smaller screens */
   width: 100%;
+}
+
+@media(min-width: 768px) {
+  .chart-container {
+    height: 200px;
+  }
 }
 
 canvas {
