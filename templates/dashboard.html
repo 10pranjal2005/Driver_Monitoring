@@ -280,7 +280,6 @@ let riskChart;
 
 let startTime = Date.now();
 
-// Reusable Chart JS theme to make things look insanely professional
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -311,26 +310,17 @@ async function fetchData(){
 
   if(!data.latest) return;
 
-  /* ORIGINAL STATUS VALUES */
   document.getElementById("fatigue").innerText = data.latest.fatigue_score;
   document.getElementById("emotion").innerText = data.latest.emotion;
   document.getElementById("phone").innerText = data.latest.phone_detected;
   document.getElementById("lane").innerText = data.latest.lane_drift_probability;
 
-  /* NEW SAFETY STATUS ENGINE */
   updateSafetyStatus(data.latest);
-
-  /* NEW SESSION METRICS */
   updateSessionMetrics(data.history);
-
-  /* CHARTS */
   updateCharts(data.history);
-
-  /* TIMELINE */
   updateTimeline(data.history);
 }
 
-/* SAFETY STATUS ENGINE */
 function updateSafetyStatus(latest){
   let score = latest.fatigue_score;
   let statusText = "";
@@ -354,7 +344,6 @@ function updateSafetyStatus(latest){
   el.className="status "+className;
 }
 
-/* SESSION METRICS ENGINE */
 function updateSessionMetrics(history){
   let fatigueAvg = history.reduce((a,b)=>a+b.fatigue_score,0) / history.length;
   document.getElementById("avgFatigue").innerText = fatigueAvg.toFixed(2);
@@ -370,16 +359,13 @@ function updateSessionMetrics(history){
   document.getElementById("phoneEvents").innerHTML = "<span>Phone Events</span><span class='critical'>"+phoneEvents+"</span>";
   document.getElementById("laneEvents").innerHTML = "<span>Lane Drift Events</span><span class='warn'>"+laneEvents+"</span>";
 
-  /* DRIVER RISK SCORE */
   let riskScore = Math.min(100, fatigueAvg*0.6 + phoneEvents*2 + laneEvents*1.5);
   document.getElementById("riskScore").innerText = riskScore.toFixed(1);
 
-  /* ATTENTION STABILITY */
   let stability = 100-riskScore;
   document.getElementById("attentionScore").innerText = stability.toFixed(1)+"%";
 }
 
-/* CHART ENGINE */
 function updateCharts(history){
   const labels = history.map(row=>row.timestamp);
   const fatigueValues = history.map(row=>row.fatigue_score);
@@ -387,7 +373,6 @@ function updateCharts(history){
   const laneValues = history.map(row=>row.lane_drift_probability);
   const riskValues = history.map(row=>row.fatigue_score*0.7);
 
-  /* FATIGUE CHART */
   if(fatigueChart) fatigueChart.destroy();
   fatigueChart = new Chart(document.getElementById("fatigueChart"),{
     type:"line",
@@ -407,7 +392,6 @@ function updateCharts(history){
     options: chartOptions
   });
 
-  /* EAR CHART */
   if(earChart) earChart.destroy();
   earChart = new Chart(document.getElementById("earChart"),{
     type:"line",
@@ -427,7 +411,6 @@ function updateCharts(history){
     options: chartOptions
   });
 
-  /* LANE CHART */
   if(laneChart) laneChart.destroy();
   laneChart = new Chart(document.getElementById("laneChart"),{
     type:"line",
@@ -447,7 +430,6 @@ function updateCharts(history){
     options: chartOptions
   });
 
-  /* RISK CHART */
   if(riskChart) riskChart.destroy();
   riskChart = new Chart(document.getElementById("riskChart"),{
     type:"line",
@@ -468,7 +450,6 @@ function updateCharts(history){
   });
 }
 
-/* TIMELINE ENGINE */
 function updateTimeline(history){
   let timelineHTML = "";
 
@@ -476,31 +457,26 @@ function updateTimeline(history){
     let eventDetected = false;
     let eventText = "";
 
-    /* FATIGUE ALERT */
     if(row.fatigue_score >= 40){
       eventText += "⚠️ Fatigue spike detected<br>";
       eventDetected = true;
     }
 
-    /* PHONE DISTRACTION */
     if(row.phone_detected === true){
       eventText += "📱 Phone distraction detected<br>";
       eventDetected = true;
     }
 
-    /* LANE DRIFT ALERT */
     if(row.lane_drift_probability >= 20){
       eventText += "🚗 Lane drift risk increased<br>";
       eventDetected = true;
     }
 
-    /* EMOTION ALERT */
     if(row.emotion === "angry"){
       eventText += "😠 Emotion changed: angry<br>";
       eventDetected = true;
     }
 
-    /* ADD TIMESTAMPED ENTRY */
     if(eventDetected){
       timelineHTML += "<b>" + row.timestamp + "</b><br>" + eventText + "<hr>";
     }
@@ -511,6 +487,72 @@ function updateTimeline(history){
 
 setInterval(fetchData,1000);
 
+</script>
+
+
+<script>
+(() => {
+  let wasCritical = false;
+
+  function playBeep() {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.type = 'square'; 
+      oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
+      
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.05);
+      gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.5);
+    } catch (e) {
+      console.warn("Audio Context blocked. User interaction required first.");
+    }
+  }
+
+  function triggerVibrate() {
+    if ("vibrate" in navigator) {
+      navigator.vibrate([500, 200, 500]);
+    }
+  }
+
+  function triggerTTS() {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance("Warning. Critical safety status detected. Please focus on driving.");
+      utterance.rate = 1.0; 
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  const targetNode = document.getElementById('safetyStatus');
+  if (targetNode) {
+    const observer = new MutationObserver(() => {
+      const currentStatus = targetNode.innerText.trim();
+
+      if (currentStatus === "CRITICAL" && !wasCritical) {
+        playBeep();
+        triggerVibrate();
+        triggerTTS();
+        
+        wasCritical = true;
+      } else if (currentStatus !== "CRITICAL") {
+        wasCritical = false;
+      }
+    });
+
+    observer.observe(targetNode, { childList: true, characterData: true, subtree: true });
+  }
+})();
 </script>
 
 </body>
