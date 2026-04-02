@@ -1002,8 +1002,9 @@ while True:
         "lane_drift_probability": lane_drift_probability
     }
 
+
     if frame_count % 5 == 0 and 'EAR' in locals():
-    
+
         print("Logging fatigue data...")
 
         pd.DataFrame([log_data]).to_csv(
@@ -1013,6 +1014,23 @@ while True:
             index=False
         )
 
+
+    ###############################
+    # CLOUD SYNC EVERY 300 FRAMES (~30 sec)
+    ###############################
+
+    if frame_count % 300 == 0:
+
+        import subprocess
+
+        print("Syncing dashboard with cloud...")
+
+        try:
+            subprocess.run(["git", "add", "fatigue_log.csv"])
+            subprocess.run(["git", "commit", "-m", "auto update fatigue log"])
+            subprocess.run(["git", "push"])
+        except:
+            pass
     cv2.imshow("Driver Monitoring System",frame)
 
     if cv2.waitKey(1)&0xFF==ord("q"):

@@ -3,47 +3,265 @@
 
 <head>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Driver Monitoring Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family: Arial;
+margin:0;
+background:#f4f6f8;
+}
+
+.header{
+background:#111827;
+color:white;
+padding:20px;
+text-align:center;
+font-size:22px;
+}
+
+.container{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0px 3px 8px rgba(0,0,0,0.1);
+}
+
+.status{
+font-size:22px;
+font-weight:bold;
+margin-top:10px;
+}
+
+/* MOBILE MODE */
+
+@media(max-width:768px){
+
+.container{
+grid-template-columns:1fr;
+}
+
+.status{
+font-size:20px;
+}
+
+.header{
+font-size:20px;
+padding:15px;
+}
+
+}
+
+canvas{
+max-width:100%;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<h2>Driver Monitoring Dashboard</h2>
+<div class="header">
 
-<p id="fatigue"></p>
-<p id="emotion"></p>
-<p id="phone"></p>
-<p id="lane"></p>
+Driver Monitoring Dashboard
+
+</div>
+
+<div class="container">
+
+
+<div class="card">
+
+<h3>Fatigue Score</h3>
+<p class="status" id="fatigue"></p>
+
+<h3>Emotion</h3>
+<p class="status" id="emotion"></p>
+
+<h3>Phone Detection</h3>
+<p class="status" id="phone"></p>
+
+<h3>Lane Drift Risk</h3>
+<p class="status" id="lane"></p>
+
+</div>
+
+
+<div class="card">
+
+<canvas id="fatigueChart"></canvas>
+
+</div>
+
+
+<div class="card">
+
+<canvas id="earChart"></canvas>
+
+</div>
+
+
+<div class="card">
+
+<canvas id="laneChart"></canvas>
+
+</div>
+
+
+</div>
+
 
 <script>
 
-async function fetchData() {
+let fatigueChart;
+let earChart;
+let laneChart;
+
+
+async function fetchData(){
 
 const response = await fetch("/data");
 const data = await response.json();
 
-if (!data.latest) return;
+if(!data.latest) return;
+
 
 document.getElementById("fatigue").innerText =
-"Fatigue Score: " + data.latest.fatigue_score;
+data.latest.fatigue_score;
 
 document.getElementById("emotion").innerText =
-"Emotion: " + data.latest.emotion;
+data.latest.emotion;
 
 document.getElementById("phone").innerText =
-"Phone Detected: " + data.latest.phone_detected;
+data.latest.phone_detected;
 
 document.getElementById("lane").innerText =
-"Lane Drift Risk: " + data.latest.lane_drift_probability;
+data.latest.lane_drift_probability;
+
+
+updateCharts(data.history);
 
 }
 
-setInterval(fetchData, 1000);
+
+function updateCharts(history){
+
+const labels =
+history.map(row=>row.timestamp);
+
+const fatigueValues =
+history.map(row=>row.fatigue_score);
+
+const earValues =
+history.map(row=>row.EAR);
+
+const laneValues =
+history.map(row=>row.lane_drift_probability);
+
+
+if(fatigueChart) fatigueChart.destroy();
+
+fatigueChart =
+new Chart(
+document.getElementById("fatigueChart"),
+{
+type:"line",
+
+data:{
+labels:labels,
+
+datasets:[
+{
+label:"Fatigue Score",
+data:fatigueValues
+}
+]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+if(earChart) earChart.destroy();
+
+earChart =
+new Chart(
+document.getElementById("earChart"),
+{
+type:"line",
+
+data:{
+labels:labels,
+
+datasets:[
+{
+label:"EAR Trend",
+data:earValues
+}
+]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+
+if(laneChart) laneChart.destroy();
+
+laneChart =
+new Chart(
+document.getElementById("laneChart"),
+{
+type:"line",
+
+data:{
+labels:labels,
+
+datasets:[
+{
+label:"Lane Drift Risk",
+data:laneValues
+}
+]
+},
+
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
+
+}
+);
+
+}
+
+
+setInterval(fetchData,1000);
 
 </script>
 
 </body>
+
 </html>
