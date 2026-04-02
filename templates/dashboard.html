@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Driver Monitoring Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<h2>Driver Monitoring Dashboard</h2>
+
+<p id="fatigue"></p>
+<p id="emotion"></p>
+<p id="phone"></p>
+<p id="lane"></p>
+
+<script>
+
+async function fetchData() {
+
+const response = await fetch("/data");
+const data = await response.json();
+
+if (!data.latest) return;
+
+document.getElementById("fatigue").innerText =
+"Fatigue Score: " + data.latest.fatigue_score;
+
+document.getElementById("emotion").innerText =
+"Emotion: " + data.latest.emotion;
+
+document.getElementById("phone").innerText =
+"Phone Detected: " + data.latest.phone_detected;
+
+document.getElementById("lane").innerText =
+"Lane Drift Risk: " + data.latest.lane_drift_probability;
+
+}
+
+setInterval(fetchData, 1000);
+
+</script>
+
+</body>
+</html>
